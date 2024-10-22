@@ -15,12 +15,14 @@ namespace TestNinja.UnitTest.Mocking
     {
         private Mock<IFileReader> _FileReader;
         private VideoService _service;
+        private Mock<IVideoRepository> _Repository;
 
         [SetUp]
        public void SetUp()
         {
             _FileReader = new Mock<IFileReader>();
-            _service    = new VideoService();
+            _Repository = new Mock<IVideoRepository>();
+            _service = new VideoService(_FileReader.Object, _Repository.Object);
         }
 
         [Test]
@@ -47,6 +49,35 @@ namespace TestNinja.UnitTest.Mocking
 
             //Assert
             Assert.That(result, Does.Contain("WayhaAamrDiab").IgnoreCase);
+        }
+        [Test]
+        public void GetUnprocessedVideosAsCsv_AllVideosAreProcessed_ReturnAnEmptyList()
+        {
+            //Arrang
+            var Video = _Repository.Setup(x => x.GetUnprocessedVideos()).Returns(new List<Video>());
+            //Act 
+            var result = _service.GetUnprocessedVideosAsCsv();
+
+            // Assert
+            Assert.That(result, Is.EqualTo(""));
+        }
+        [Test]
+        public void GetUnprocessedVideosAsCsv_AfewVideosUnprocessedVideos_ReturnListOFIDS()
+        {
+            //Arrang
+            var Video = _Repository.Setup(x => x.GetUnprocessedVideos()).Returns(new List<Video>{
+                new Video { Id = 1},
+                new Video { Id = 2 },
+                new Video {Id = 3},
+                new Video {Id = 4},
+                new Video {Id = 5}
+            });
+            //Act 
+            var result = _service.GetUnprocessedVideosAsCsv();
+
+
+            // Assert
+            Assert.That(result, Is.EqualTo("1,2,3,4,5"));
         }
     }
 }

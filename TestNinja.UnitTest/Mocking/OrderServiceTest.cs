@@ -13,6 +13,18 @@ namespace TestNinja.UnitTest.Mocking
     [TestFixture]
     public class OrderServiceTest
     {
+        private Mock<IFileReader> _FileReader;
+        private Mock<IVideoRepository> _Repository;
+        private VideoService _service;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _FileReader = new Mock<IFileReader>();
+            _Repository = new Mock<IVideoRepository>();
+            _service = new VideoService(_FileReader.Object, _Repository.Object);
+        }
+
         [Test]
         public void PlaceOrder_WhenCalled_StoreOrder()
         {
@@ -27,5 +39,7 @@ namespace TestNinja.UnitTest.Mocking
             // Assert
             storage.Verify(x => x.Store(order));
         }
+        
     }
 }
+
